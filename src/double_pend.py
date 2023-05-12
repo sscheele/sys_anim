@@ -85,5 +85,6 @@ if __name__ == "__main__":
     # derived from the screen aspect ratio, making the rectangles appear
     # to distort as they rotate
     plt.gca().set_aspect('equal')
-    plt.show()
+    ani.save('img/double_pend.gif')
+    # plt.show()
 
