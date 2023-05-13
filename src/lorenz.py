@@ -68,5 +68,5 @@ if __name__ == "__main__":
         fig, update_lorenz, int(n_steps/rtf), fargs=(lorenz_states, line, rtf), interval=50
     )
 
-    ani.save('img/lorenz.gif')
+    ani.save('out/lorenz.gif')
     # plt.show()

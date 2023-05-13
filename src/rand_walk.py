@@ -43,5 +43,5 @@ ax.set(zlim3d=(0, 1), zlabel='Z')
 ani = animation.FuncAnimation(
     fig, update_lines, num_steps, fargs=(walks, lines), interval=100)
 
-ani.save('img/rand_walk.gif')
+ani.save('out/rand_walk.gif')
 # plt.show()
