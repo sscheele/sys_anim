@@ -9,14 +9,14 @@ The idea is to have something simple to refer to when I need to make something t
 
 # Algorithm Visualizations
 ## Random Walk
-![](src/img/rand_walk.gif)
+![](src/out/rand_walk.gif)
 
 ## Optical Flow
-![](src/img/optical_flow.gif)
+(GIF available, but omitted because it's 100MB and I wouldn't play you like that)
 
 # Physical Systems
 ## Lorenz System
-![](src/img/lorenz.gif)
+![](src/out/lorenz.gif)
 
 ## Double Pendulum System
-![](src/img/double_pend.gif)
+![](src/out/double_pend.gif)
