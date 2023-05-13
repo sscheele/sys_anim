@@ -11,6 +11,9 @@ The idea is to have something simple to refer to when I need to make something t
 ## Random Walk
 ![](src/img/rand_walk.gif)
 
+## Optical Flow
+![](src/img/optical_flow.gif)
+
 # Physical Systems
 ## Lorenz System
 ![](src/img/lorenz.gif)

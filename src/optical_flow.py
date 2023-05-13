@@ -17,6 +17,7 @@ with video.
 """
 import numpy as np
 import cv2 as cv
+from PIL import Image
 
 import matplotlib.pyplot as plt
 import io
@@ -66,20 +67,18 @@ def get_paths(fname):
         lines.append(curr_lines)
     return lines
 
-def plot_as_ndarray(fig):
+def plot_as_ndarray(fig, DPI=128):
     io_buf = io.BytesIO()
-    plt.savefig(io_buf, format='raw', dpi=DPI)
+    plt.savefig(io_buf, format='raw', dpi=DPI, bbox_inches=0)
     plt_width = fig.get_figwidth()*DPI
     plt_height = fig.get_figheight()*DPI
     io_buf.seek(0)
     img_arr = np.reshape(np.frombuffer(io_buf.getvalue(), dtype=np.uint8),
                          newshape=(int(plt_height), int(plt_width), -1))
     io_buf.close()
-    return img_arr    
+    return img_arr
 
-if __name__ == "__main__":
-    DPI = 128
-    in_path = 'in/traffic.mp4'
+def gen_frames(in_path: str, DPI=128):
     lines = get_paths(in_path)
     cap = cv.VideoCapture(in_path)
     _, first_frame = cap.read()
@@ -101,28 +100,39 @@ if __name__ == "__main__":
         plt.cla()
         ax.set(xlim=(0,first_frame.shape[1]))
         ax.set(ylim=(0,first_frame.shape[0]))
+        # by turning off axes and setting this axis to cover the whole plot,
+        # we can align the matplotlib plot with the image without any calls
+        # to ax.imshow(), which makes performance ~5x better
         ax.set_axis_off()
+        ax.set_position((0, 0, 1, 1))
+
         for line in curr_lines:
             # print(line[1])
             ax.plot(line[0], line[1], color='b')
-        # this is a bad hack, but prevents matplotlib from resizing
-        # the exported image after we make the next `imshow` call
-        ax.imshow(empty_im)
         
         # read plot into numpy array
-        plt_mask = plot_as_ndarray(fig)
+        plt_mask = plot_as_ndarray(fig, DPI)[:,:,:3]
         if img_mask is None:
             img_mask = plt_mask
         img_mask = np.where(plt_mask < 255, plt_mask, img_mask)
 
-        # display image and reread
-        ax.imshow(frame[::-1,:,:])
-        disp_frame = plot_as_ndarray(fig)
-        disp_frame = np.where(img_mask < 255, img_mask, disp_frame)
-        cv.imshow('frame', disp_frame)
-        k = cv.waitKey(30) & 0xff
-
+        frame = cv.resize(frame, (img_mask.shape[1], img_mask.shape[0]))
+        disp_frame = np.where(img_mask < 255, img_mask, frame)
+        yield disp_frame
+        
         print("Rendered next frame: %0.3f sec" % (time() - t_start))
         print("Frame dims: ", frame.shape[:2])
         frame_num += 1
-    cv.destroyAllWindows()
+    
+
+if __name__ == "__main__":
+    in_path = 'in/traffic.mp4'
+
+    # for frame in gen_frames(in_path):
+    #     cv.imshow('frame', frame)
+    #     k = cv.waitKey(30) & 0xff
+    # cv.destroyAllWindows()
+
+    pil_frames = [Image.fromarray(x[:,:,[2,1,0]], "RGB") for x in gen_frames(in_path)]
+    pil_frames[0].save('out/optical_flow.gif', save_all=True, 
+        append_images=pil_frames)        
